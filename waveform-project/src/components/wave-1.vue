@@ -17,10 +17,11 @@ export default {
       ballContext:"",
       timeElapsed:0,
       increment:0,
-      xAxisPointsGap:50,
+      xAxisPointsGap:3,
       yAxisPointsGap:2,
-      xAxisScale:2,
-      yAxisScale:2,
+      xAxisScale:10,
+      yAxisScale:1,
+      intervalKey:0,
       fps:30
     }
   },
@@ -52,13 +53,13 @@ export default {
     renderCanvas(){
      this.renderWave();
 
-     setInterval(() => {
+     this.intervalKey=setInterval(() => {
        this.renderBall();
      }, 1000/this.fps);
      
     },
     renderBall(){
-      console.log(new Date().getSeconds());
+      
        var marginLeft=30;
        var Y=this.amplitude*Math.sin((this.timeElapsed)*this.frequency/60);
        if(Y>=0)
@@ -70,7 +71,7 @@ export default {
        d.beginPath();
        
        var Y=(this.amplitude*Math.sin(2*Math.PI * this.frequency * this.timeElapsed)-this.amplitude);
-       d.arc((this.timeElapsed+marginLeft),this.waveStartingPositionY+Y,5,0,Math.PI*2,false);
+       d.arc((this.timeElapsed*this.xAxisScale)+marginLeft,this.waveStartingPositionY+(Y*this.yAxisScale),5,0,Math.PI*2,false);
       
        d.closePath();
        d.fill();
@@ -89,10 +90,13 @@ export default {
       var marginTop=20;
       var marginLeft=30;
 
+      waveContext.lineCap="round";
+      waveContext.lineJoin="round";
+
       waveContext.beginPath();
       waveContext.lineWidth=20;
-      waveContext.moveTo(this.waveStartingPositionX+marginLeft-10,marginTop+this.waveStartingPositionY);
-      waveContext.lineTo(window.innerWidth,marginTop+ this.waveStartingPositionY);
+      waveContext.moveTo((this.waveStartingPositionX+marginLeft-10),(marginTop+this.waveStartingPositionY));
+      waveContext.lineTo((window.innerWidth),(marginTop+ this.waveStartingPositionY));
       waveContext.strokeStyle="#cebfd8"
       waveContext.stroke();
       waveContext.closePath();
@@ -118,7 +122,7 @@ export default {
       for(var i=0;i<window.innerWidth;i++){
 
           var Y=(this.amplitude*Math.sin(2*Math.PI * this.frequency * i))-this.amplitude;
-          waveContext.lineTo(marginLeft+i,this.waveStartingPositionY + Y);
+          waveContext.lineTo(marginLeft+(i*this.xAxisScale),this.waveStartingPositionY + (Y*this.yAxisScale));
 
           // if(i==0)
           // waveContext.textAlign = 'left';
@@ -132,13 +136,13 @@ export default {
 
           if(i%this.xAxisPointsGap==0)
           {
-            waveContext.fillText(i,marginLeft+i,marginTop+ this.waveStartingPositionY);
+            waveContext.fillText(i,marginLeft+(i*this.xAxisScale),marginTop+ this.waveStartingPositionY);
           }
       }
      
 
       YPoints.forEach((val,index)=>{
-        waveContext.fillText(val*-1,7,this.waveStartingPositionY+val);
+        waveContext.fillText(val*-1,7,this.waveStartingPositionY+(val*this.yAxisScale));
       })
       
       waveContext.stroke();
@@ -148,6 +152,9 @@ export default {
   mounted(){
     this.initializeData();
     this.renderCanvas();
+  },
+  beforeDestroy(){
+    clearInterval(this.intervalKey);
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <wave :amplitude=120 :frequency=0.01></wave>
+  <wave :amplitude=50 :frequency=0.1></wave>
 </template>
 
 <script>
